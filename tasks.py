@@ -30,8 +30,11 @@ def travis_creds(ctx):
 
 @task
 def base_integration_tests(ctx):
-  response = requests.get("https://1zsf4llr46.execute-api.us-west-2.amazonaws.com/prod/google")
+  api_definition = "1zsf4llr46"  # Changes per fresh deployment of ApiDefinition
+  url1 = "https://{0}.execute-api.us-west-2.amazonaws.com/prod/google".format(api_definition)
 
-  assert response.status_code == 200
+  assert requests.get(url1).status_code == 200
+  assert requests.get("https://www.google.com").text != requests.get("https://www.google.com").text
+  assert requests.get(url1).text[0:500] == requests.get("https://www.google.com").text[0:500]
 
   print "***** BASE INTEGRATION TESTS SUCCESSFUL"

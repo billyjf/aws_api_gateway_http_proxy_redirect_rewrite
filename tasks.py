@@ -53,6 +53,5 @@ def base_integration_tests(ctx):
   api_gateway_response = requests.get(api_gateway_amazon_url)
   amazon_response = requests.get("https://www.amazon.com")
   assert "All Departments" in api_gateway_response.text
-  assert ( "Robot Check" in amazon_response.text or "All Departments" in amazon_response.text )
 
   print "***** BASE INTEGRATION TESTS SUCCESSFUL"

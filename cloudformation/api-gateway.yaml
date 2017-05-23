@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Api gateway rewrite and redirect proof of concept (POC)."
+Resources:
+  ApiDefinition:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: "RewriteRedirect"
+      Description: "Rewrite redirect API to host many, many, rewrites and redirects!"
+      FailOnWarnings: true
+  ApiDeployment:
+    DependsOn:
+    - RewriteRequest
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref ApiDefinition
+      # Note: StageName is required by API Gateway. We recommend that you specify a name using any value
+      # (see Examples) and that you don’t use this stage. We recommend not using this stage because it is tied to this
+      # deployment, which means you can’t delete one without deleting the other. For example, if you delete this
+      # deployment, API Gateway also deletes this stage, which you might want to keep. Instead, use the
+      # AWS::ApiGateway::Stage resource to create and associate a stage with this deployment.
+      StageName: TiedToStage
+  Stage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId: !Ref ApiDeployment
+      RestApiId: !Ref ApiDefinition
+      StageName: prod
+  RewriteResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiDefinition
+      ParentId: !GetAtt ApiDefinition.RootResourceId
+      PathPart: "google"
+  RewriteRequest:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: "NONE"
+      HttpMethod: "GET"
+      Integration:
+        Type: "HTTP"
+        IntegrationHttpMethod: "GET"
+        Uri: "https://www.google.com"
+        IntegrationResponses:
+        - StatusCode: 200
+      ResourceId: !Ref RewriteResource
+      RestApiId: !Ref ApiDefinition
+      MethodResponses:
+      - StatusCode: 200

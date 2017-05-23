@@ -22,3 +22,7 @@ aws_secret_access_key={1}
 @task
 def cloudformation_deploy(ctx):
   ctx.run("aws cloudformation deploy --template cloudformation/api-gateway.yaml --stack-name api-gateway-rewrite-redirect-poc")
+
+@task
+def travis_creds(ctx):
+  ctx.run("aws cloudformation deploy --template cloudformation/travis.yaml --stack-name api-gateway-rewrite-redirect-poc-travis-creds --capabilities CAPABILITY_NAMED_IAM")

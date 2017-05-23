@@ -6,4 +6,4 @@ rewrite rules, documenting the solution using Infrastructure as
 Code/Cloudformation.
 
 # Usage
-`./deploy.sh` from a workstation and/or build system, such as Travis.
+`./deploy.sh` or `./test.sh` from a workstation and/or build system, such as Travis.

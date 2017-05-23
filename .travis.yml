@@ -12,4 +12,4 @@ after_success: |
   set -e
   pip install --upgrade awscli
   aws --version
-  ./deploy.sh
+  ./test.sh

@@ -1,5 +1,6 @@
 from invoke import task
 import os, sys
+import requests
 
 @task
 def aws_creds_are_set(ctx,
@@ -26,3 +27,11 @@ def cloudformation_deploy(ctx):
 @task
 def travis_creds(ctx):
   ctx.run("aws cloudformation deploy --template cloudformation/travis.yaml --stack-name api-gateway-rewrite-redirect-poc-travis-creds --capabilities CAPABILITY_NAMED_IAM")
+
+@task
+def base_integration_tests(ctx):
+  response = requests.get("https://1zsf4llr46.execute-api.us-west-2.amazonaws.com/prod/google")
+
+  assert response.status_code == 200
+
+  print "***** BASE INTEGRATION TESTS SUCCESSFUL"

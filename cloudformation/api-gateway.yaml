@@ -8,9 +8,10 @@ Resources:
       Description: "Rewrite redirect API to host many, many, rewrites and redirects!"
       FailOnWarnings: true
   ApiDeployment:
-    DependsOn:
-    - RewriteRequest
     Type: AWS::ApiGateway::Deployment
+    DependsOn:
+    - RewriteMethod1
+    - RewriteMethod2
     Properties:
       RestApiId: !Ref ApiDefinition
       # Note: StageName is required by API Gateway. We recommend that you specify a name using any value
@@ -25,13 +26,13 @@ Resources:
       DeploymentId: !Ref ApiDeployment
       RestApiId: !Ref ApiDefinition
       StageName: prod
-  RewriteResource:
+  RewriteResource1:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId: !Ref ApiDefinition
       ParentId: !GetAtt ApiDefinition.RootResourceId
       PathPart: "google"
-  RewriteRequest:
+  RewriteMethod1:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: "NONE"
@@ -42,7 +43,49 @@ Resources:
         Uri: "https://www.google.com"
         IntegrationResponses:
         - StatusCode: 200
-      ResourceId: !Ref RewriteResource
+      ResourceId: !Ref RewriteResource1
+      RestApiId: !Ref ApiDefinition
+      MethodResponses:
+      - StatusCode: 200
+  RewriteResource2:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiDefinition
+      ParentId: !Ref RewriteResource1 # under /google
+      PathPart: "maps" # with ParentId, equates to /google/maps
+  RewriteMethod2:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: "NONE"
+      HttpMethod: "GET"
+      Integration:
+        Type: "HTTP"
+        IntegrationHttpMethod: "GET"
+        Uri: "https://www.google.com/maps"
+        IntegrationResponses:
+        - StatusCode: 200
+      ResourceId: !Ref RewriteResource2
+      RestApiId: !Ref ApiDefinition
+      MethodResponses:
+      - StatusCode: 200
+  RewriteResource3:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiDefinition
+      ParentId: !GetAtt ApiDefinition.RootResourceId # under /amazon
+      PathPart: "amazon" # with ParentId, equates to /amazon
+  RewriteMethod3:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: "NONE"
+      HttpMethod: "GET"
+      Integration:
+        Type: "HTTP"
+        IntegrationHttpMethod: "GET"
+        Uri: "https://www.amazon.com"
+        IntegrationResponses:
+        - StatusCode: 200
+      ResourceId: !Ref RewriteResource3
       RestApiId: !Ref ApiDefinition
       MethodResponses:
       - StatusCode: 200

@@ -30,11 +30,29 @@ def travis_creds(ctx):
 
 @task
 def base_integration_tests(ctx):
-  api_definition = "1zsf4llr46"  # Changes per fresh deployment of ApiDefinition
-  url1 = "https://{0}.execute-api.us-west-2.amazonaws.com/prod/google".format(api_definition)
+  api_definition = "m5sj78uaq4"  # Changes per fresh deployment of ApiDefinition
+  api_gateway_google_url = "https://{0}.execute-api.us-west-2.amazonaws.com/prod/google".format(api_definition)
+  api_gateway_amazon_url = "https://{0}.execute-api.us-west-2.amazonaws.com/prod/amazon".format(api_definition)
 
-  assert requests.get(url1).status_code == 200
-  assert requests.get("https://www.google.com").text != requests.get("https://www.google.com").text
-  assert requests.get(url1).text[0:500] == requests.get("https://www.google.com").text[0:500]
+  # API Gateway /google vs https://www.google.com
+  api_gateway_response = requests.get(api_gateway_google_url)
+  google_response = requests.get("https://www.google.com")
+  assert api_gateway_response.status_code == 200
+  assert google_response.text != requests.get("https://www.google.com") # Every back to back request differs
+  assert api_gateway_response.text[0:500] == google_response.text[0:500]
+
+  # API Gateway /google/maps vs https://www.google.com/maps
+  api_gateway_response = requests.get("{0}/maps".format(api_gateway_google_url))
+  google_response = requests.get("https://www.google.com/maps")
+  assert api_gateway_response.status_code == 200
+  assert "Moved" in api_gateway_response.text
+  assert google_response.status_code == 200
+  assert "Moved" not in google_response.text
+
+  # API Gateway /amazon vs https://www.amazon.com
+  api_gateway_response = requests.get(api_gateway_amazon_url)
+  amazon_response = requests.get("https://www.amazon.com")
+  assert "All Departments" in api_gateway_response.text
+  assert "Robot Check" in amazon_response.text
 
   print "***** BASE INTEGRATION TESTS SUCCESSFUL"
